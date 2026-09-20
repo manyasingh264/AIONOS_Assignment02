@@ -275,11 +275,56 @@ python run_tests.py
 ## AI Tools Used
 
 In accordance with project guidelines, the following AI tools were utilized:
-1. **Groq LLM (`llama-3.3-70b-versatile` / `llama-3.1-8b-instant`)**:
-   - Primary natural language processing engine for classifying nuanced user intents and translating structured decision parameters into professional, user-friendly responses.
-   - Operated with system prompts enforcing policy grounding and preventing hallucination.
-2. **Antigravity AI Assistant**:
-   - Used for interactive test-driven development (TDD), writing the 21-check automated test harness, identifying edge cases (stale clarification prompts, multi-turn context retention), and engineering the enterprise frontend interface.
+
+### 1. Groq LLM Integration
+
+**Models Used**: `llama-3.3-70b-versatile` / `llama-3.1-8b-instant`
+
+**Primary Purpose**:
+- Natural language processing engine for classifying nuanced user intents
+- Translating structured decision parameters into professional, user-friendly responses
+- Supporting multi-turn conversation context and follow-up questions
+
+**Integration Details**:
+- **API Client**: Groq SDK for fast, low-latency inference
+- **System Prompts**: Strict grounding enforcement to prevent policy hallucination
+- **Temperature**: Set to 0.3 for consistent, deterministic outputs
+- **Max Tokens**: Limited to 300 for concise, professional responses
+- **Error Handling**: Graceful fallback to pre-written responses if API fails
+
+**Grounding Enforcement**:
+The LLM is explicitly instructed to:
+- Use ONLY supplied policies, employee requests, ticket queue, and Asset Management Policy
+- Never invent company policy, approval requirements, department ownership, or timelines
+- Ask clarification or escalate when information is insufficient
+- Treat closed tickets as historical only (not actionable)
+- Keep responses concise and professional without revealing internal reasoning
+
+**Usage Pattern**:
+```
+1. Employee message → LLM intent classification
+2. Application code → Deterministic policy retrieval & business rules
+3. Application code → Structured decision (RESOLVE/CLARIFY/ESCALATE/ROUTE)
+4. LLM → Natural language response generation based on decision
+```
+
+**Why Groq**:
+- Fast inference speeds for real-time chat experience
+- Cost-effective for the assignment scope
+- Reliable API with good uptime
+- Supports high-quality open-source models (Llama 3 family)
+- Low latency critical for conversational agent experience
+
+### 2. Antigravity AI Assistant
+
+**Purpose**: Development assistance and code generation
+
+**Usage**:
+- Interactive test-driven development (TDD)
+- Writing the 21-check automated test harness
+- Identifying edge cases (stale clarification prompts, multi-turn context retention)
+- Engineering the enterprise frontend interface
+- Code review and optimization suggestions
 
 ---
 

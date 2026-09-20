@@ -101,19 +101,18 @@ class ITSupportAgent:
             in_security_context=(decision.intent == "security_incident"),
         )
 
-        # Create ticket only if required AND not already open
+        # Create ticket for all escalations (not just first one in session)
         ticket = None
-        if decision.escalation_required and not session_state.current_ticket_id:
-            priority = "High" if decision.decision == "ESCALATE" else "Medium"
+        if decision.escalation_required:
             ticket = self.ticket_manager.create_ticket(
                 employee=employee_id or "Unknown",
                 category=decision.intent,
                 issue=message,
-                priority=priority,
                 source=decision.policy_ids[0] if decision.policy_ids else "Unknown",
                 destination=decision.escalation_destination
             )
             self.audit_logger.log("TICKET_CREATED", f"{ticket.ticket_id} -> {ticket.destination}")
+            # Update session with latest ticket ID (for tracking)
             self.conversation_manager.update_session(session_id, current_ticket_id=ticket.ticket_id)
 
         # Generate natural language response using LLM when available
@@ -207,20 +206,15 @@ class ITSupportAgent:
         self.audit_logger.log("HUMAN_HANDOFF", "User requested human assistance")
 
         ticket = None
-        if not session_state.current_ticket_id:
-            ticket = self.ticket_manager.create_ticket(
-                employee=employee_id or "Unknown",
-                category="Human Handoff",
-                issue=session_state.current_issue or "User requested human assistance",
-                priority="High",
-                source=session_state.current_policy_id or "Conversation",
-                destination="IT Support"
-            )
-            self.audit_logger.log("TICKET_CREATED", f"{ticket.ticket_id} -> IT Support")
-            self.conversation_manager.update_session(session_id, current_ticket_id=ticket.ticket_id)
-        else:
-            self.audit_logger.log("TICKET_UPDATED",
-                                  f"{session_state.current_ticket_id} — escalated to human")
+        ticket = self.ticket_manager.create_ticket(
+            employee=employee_id or "Unknown",
+            category="Human Handoff",
+            issue=session_state.current_issue or "User requested human assistance",
+            source=session_state.current_policy_id or "Conversation",
+            destination="IT Support"
+        )
+        self.audit_logger.log("TICKET_CREATED", f"{ticket.ticket_id} -> IT Support")
+        self.conversation_manager.update_session(session_id, current_ticket_id=ticket.ticket_id)
 
         # Only include issue if employee described one in THIS session
         # Prevents stale session data appearing when handoff is the first message
@@ -359,13 +353,11 @@ class ITSupportAgent:
         )
 
         ticket = None
-        if decision.escalation_required and not session_state.current_ticket_id:
-            priority = "High" if decision.decision == "ESCALATE" else "Medium"
+        if decision.escalation_required:
             ticket = self.ticket_manager.create_ticket(
                 employee=employee_id or "Unknown",
                 category=decision.intent,
                 issue=session_state.current_issue or message,
-                priority=priority,
                 source=decision.policy_ids[0] if decision.policy_ids else "Unknown",
                 destination=decision.escalation_destination
             )
@@ -735,12 +727,10 @@ Reply with the NEXT step from the policy.
         # Create ticket for first issue only if required
         ticket = None
         if first_decision.escalation_required:
-            priority = "High" if first_decision.decision == "ESCALATE" else "Medium"
             ticket = self.ticket_manager.create_ticket(
                 employee=employee_id or "Unknown",
                 category=first_decision.intent,
                 issue=first_part,
-                priority=priority,
                 source=first_decision.policy_ids[0] if first_decision.policy_ids else "Unknown",
                 destination=first_decision.escalation_destination
             )
@@ -857,7 +847,6 @@ Reply with the NEXT step from the policy.
                 employee=employee_id or "Unknown",
                 category="printer_issue",
                 issue=f"Printer issue — asset tag: {asset_tag}. Steps already tried: restart spooler.",
-                priority="Medium",
                 source="KB-05",
                 destination="IT"
             )

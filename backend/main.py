@@ -109,12 +109,17 @@ async def get_tickets():
 async def create_ticket(ticket_data: dict):
     """Create a new ticket manually"""
     try:
+        # Extract priority (optional - will auto-assign if not provided)
+        priority = ticket_data.get("priority")
+        if not priority or priority.strip() == "":
+            priority = None  # Let ticket manager auto-assign
+        
         ticket = ticket_manager.create_ticket(
             employee=ticket_data.get("employee", "Unknown"),
             category=ticket_data.get("category", "General"),
             issue=ticket_data.get("issue", ""),
-            priority=ticket_data.get("priority", "Medium"),
             source=ticket_data.get("source", "Manual"),
+            priority=priority,
             destination=ticket_data.get("destination")
         )
         return ticket.dict()
