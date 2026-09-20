@@ -53,7 +53,7 @@ function App() {
     const newEmpId = e.target.value;
     const oldSessionId = sessionId;
     if (oldSessionId) {
-      try { await fetch(`/api/sessions/${oldSessionId}`, { method: 'DELETE' }); } catch (_) {}
+      try { await fetch(`/api/sessions/${oldSessionId}`, { method: 'DELETE' }); } catch (_) { }
     }
     const newSessionId = makeSessionId(newEmpId);
     setSelectedEmployee(newEmpId);
@@ -84,7 +84,7 @@ function App() {
 
   const handleClearChat = useCallback(async () => {
     if (sessionId) {
-      try { await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' }); } catch (_) {}
+      try { await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' }); } catch (_) { }
     }
     setMessages([]);
     setLastResponse(null);
@@ -105,7 +105,7 @@ function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* Plain SVG shield — no lucide */}
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
             <div>
               <div className="app-header-title" style={{ fontSize: '15px', fontWeight: '600', color: '#F1F5F9', letterSpacing: '-0.01em' }}>
@@ -240,9 +240,9 @@ function App() {
               textAlign: 'center',
             }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ margin: '0 auto 12px' }} strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.5' }}>
                 Send a message to see the agent decision, policy source, and audit trace.

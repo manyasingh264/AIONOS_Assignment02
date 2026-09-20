@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://humble-wholeness-production-8f06.up.railway.app/api/:path*"
+    }
+  ]
+}
